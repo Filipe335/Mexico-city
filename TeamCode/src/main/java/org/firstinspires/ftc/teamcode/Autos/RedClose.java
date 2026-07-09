@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Configurable
 @Autonomous(name = "RedClose", group = "Autonomous")
 public class RedClose extends OpMode {
-    private Timer t;
+    private Timer t, intakeTimer;
     private TelemetryManager panelsTelemetry;
     private Shooter shooter;
     private Turret turret;
@@ -44,8 +44,10 @@ public class RedClose extends OpMode {
     public PathChain ShootSweep;
     public PathChain Park;
     private Follower follower;
+    public boolean isShootingDone = false;
     public Pose startingPose = new Pose(117.000, 128.000);
-    public enum PathState{
+
+    public enum PathState {
         RUN_AND_GUN,
         SHOOT_PRELOAD,
         FIRST_PICKUP,
@@ -60,34 +62,37 @@ public class RedClose extends OpMode {
         SHOOT_TUNNEL2,
         PRE_SWEEP,
         SWEEP,
-        SWEEP_SHOOT,
+        SHOOT_SWEEP,
         PARK
     }
+
     public PathState pathState;
-    public void autoPathUpdate(){
+
+    public void autoPathUpdate() {
         //TODO: Implement Turret logic
-        switch(pathState){
+        //TODO: add waits where needed (not necessary for shooting states) -- now doing
+        switch (pathState) {
             case RUN_AND_GUN:
                 follower.followPath(RunAndGun);
-                if(!follower.isBusy()){
+                if (!follower.isBusy()) {
                     pathState = PathState.SHOOT_PRELOAD;
                 }
                 break;
 
             case SHOOT_PRELOAD:
-                t.resetTimer();
-                if(!follower.isBusy()){
+                if (!follower.isBusy()) {
+                    t.resetTimer();
                     shoot();
                 }
-                transfer.stop();
-                gate.close();
-                pathState = PathState.FIRST_PICKUP;
+                if (isShootingDone) {
+                    pathState = PathState.FIRST_PICKUP;
+                }
                 break;
 
             case FIRST_PICKUP:
                 follower.followPath(FirstPickup);
                 intake.run();
-                if(!follower.isBusy()){
+                if (follower.atPose(FirstPickup.endPose(), 0.5, 0.5)) {
                     intake.stop();
                     pathState = PathState.FIRST_SHOOT;
                 }
@@ -95,56 +100,125 @@ public class RedClose extends OpMode {
 
             case FIRST_SHOOT:
                 follower.followPath(FirstShoot);
-                if(!follower.isBusy()){
+                if (!follower.isBusy()) {
+                    t.resetTimer();
                     shoot();
                 }
-                pathState = PathState.SECOND_PICKUP;
+                if (isShootingDone) {
+                    pathState = PathState.SECOND_PICKUP;
+                }
                 break;
             case SECOND_PICKUP:
                 follower.followPath(SecondPickup);
                 intake.run();
-                if(follower.atPose(SecondPickup.endPose(), 1, 1)){
+                if (follower.atPose(SecondPickup.endPose(), 1, 1)) {
                     intake.stop();
                     pathState = PathState.SECOND_SHOOT;
                 }
                 break;
             case SECOND_SHOOT:
                 follower.followPath(SecondShoot);
-                if(!follower.isBusy()){
+                if (!follower.isBusy()) {
+                    t.resetTimer();
                     shoot();
                 }
-                pathState = PathState.GATE1;
+                if (isShootingDone) {
+                    pathState = PathState.GATE1;
+                }
                 break;
             case GATE1:
                 follower.followPath(Gate1);
-                if (follower.atPose(Gate1.endPose(), 1, 1)){
+                if (follower.atPose(Gate1.endPose(), 1, 1)) {
                     pathState = PathState.TUNNEL1;
                 }
                 break;
             case TUNNEL1:
                 intake.run();
                 follower.followPath(Tunnel1);
-                if(follower.atPose(Tunnel1.endPose(), 1, 1)){
-                    intake.stop();
-                    pathState = PathState.SHOOT_TUNNEL1;
+
+                if (follower.atPose(Tunnel1.endPose(), 1, 1)) {
+                    intakeTimer.resetTimer();
+                    if (intakeTimer.getElapsedTimeSeconds() < 0.9) {
+                        intake.run();
+                    } else {
+                        pathState = PathState.SHOOT_TUNNEL1;
+                    }
                 }
                 break;
             case SHOOT_TUNNEL1:
-                if(follower.atPose(Tunnel1.endPose(), 0.5, 0.5)){
+                follower.followPath(ShootTunnel1);
+                if (!follower.isBusy()) {
+                    t.resetTimer();
                     shoot();
                 }
-                pathState = PathState.GATE2;
+                if (isShootingDone) {
+                    pathState = PathState.GATE2;
+                }
                 break;
             case GATE2:
                 follower.followPath(Gate2);
-                if(follower.atPose(Gate2.endPose(), 1, 1)){
+                if (follower.atPose(Gate2.endPose(), 1, 1)) {
                     pathState = PathState.TUNNEL2;
                 }
                 break;
             case TUNNEL2:
                 intake.run();
+                follower.followPath(Tunnel2);
+
+                if (follower.atPose(Tunnel2.endPose(), 1, 1)) {
+                    intakeTimer.resetTimer();
+                    if (intakeTimer.getElapsedTimeSeconds() < 0.9) {
+                        intake.run();
+                    } else {
+                        pathState = PathState.SHOOT_TUNNEL2;
+                    }
+                }
+                break;
+            case SHOOT_TUNNEL2:
+                follower.followPath(ShootTunnel2);
+                if (!follower.isBusy()) {
+                    t.resetTimer();
+                    shoot();
+                }
+                if (isShootingDone) {
+                    pathState = PathState.PRE_SWEEP;
+                }
+                break;
+            case PRE_SWEEP:
+                follower.followPath(PreSweep);
+                intake.run();
+                if(follower.atPose(PreSweep.endPose(), 1, 1)){
+                    pathState = PathState.SWEEP;
+                }
+                break;
+            case SWEEP:
+                follower.followPath(Sweep);
+                intake.run();
+                if(follower.atPose(Sweep.endPose(), 0.5, 0.5)){
+                    intake.stop();
+                    pathState = PathState.SHOOT_SWEEP;
+                }
+                break;
+            case SHOOT_SWEEP:
+                follower.followPath(ShootSweep);
+                if(!follower.isBusy()){
+                    t.resetTimer();
+                    shoot();
+                }
+                if(isShootingDone){
+                    pathState = PathState.PARK;
+                }
+                break;
+            case PARK:
+                follower.followPath(Park);
+                panelsTelemetry.debug("Auto is done");
+                break;
+
+
+            //TODO
         }
     }
+
     @Override
     public void init() {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -153,6 +227,9 @@ public class RedClose extends OpMode {
         gate = new Gate(hardwareMap);
         transfer = new Transfer(hardwareMap);
         intake = new Intake(hardwareMap);
+        //Timers
+        t = new Timer();
+        intakeTimer = new Timer();
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose);
@@ -161,6 +238,7 @@ public class RedClose extends OpMode {
         panelsTelemetry.debug("INIT FINISHED");
         panelsTelemetry.update(telemetry);
     }
+
     @Override
     public void loop() {
         follower.update();
@@ -174,6 +252,7 @@ public class RedClose extends OpMode {
         panelsTelemetry.debug("Heading", follower.getPose().getHeading());
         panelsTelemetry.update(telemetry);
     }
+
     public void buildPaths(Follower follower) {
         //TODO
         RunAndGun = follower.pathBuilder()
@@ -210,7 +289,7 @@ public class RedClose extends OpMode {
                 .addPath(
                         new BezierCurve(
                                 new Pose(95.000, 81.000),
-                                new Pose(96.000, 57.000),
+                                new Pose(87.000, 56.000),
                                 new Pose(120.000, 59.000)
                         )
                 )
@@ -331,16 +410,20 @@ public class RedClose extends OpMode {
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
     }
-    public void shoot(){
-        if(t.getElapsedTimeSeconds() < 0.06){
+
+    public void shoot() {
+        if (t.getElapsedTimeSeconds() < 0.06) {
             gate.open();
-        }else if(t.getElapsedTimeSeconds() < 0.4){
+            isShootingDone = false;
+        } else if (t.getElapsedTimeSeconds() < 0.4) {
             intake.run();
             transfer.run();
-        }else {
+            isShootingDone = false;
+        } else {
             gate.close();
             intake.stop();
             transfer.stop();
+            isShootingDone = true;
         }
     }
 }
