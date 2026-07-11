@@ -47,14 +47,14 @@ dependencies {
 
     // SolversLib: Latest Stable Version
 
-    implementation "org.solverslib:core:0.3.4" // core
-    implementation "org.solverslib:pedroPathing:0.3.4" // pedroPathing
+    implementation "org.solverslib:core:0.3.3" // core
+    implementation "org.solverslib:pedroPathing:0.3.3" // pedroPathing
     //    implementation "org.solverslib:photon:0.3.4" // photon is optional (see docs for more info)
 
     implementation "com.acmerobotics.dashboard:dashboard:0.5.1" // FTC Dashboard
-
+//xdsc
     // Pedro Pathing
-    implementation 'com.pedropathing:ftc:2.0.6'
+    implementation 'com.pedropathing:ftc:2.1.2'
     implementation 'com.pedropathing:telemetry:1.0.0'
 
     // Panels Dashboard

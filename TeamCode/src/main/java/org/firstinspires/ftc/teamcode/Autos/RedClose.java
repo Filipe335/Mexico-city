@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Configurable
 @Autonomous(name = "RedClose", group = "Autonomous")
 public class RedClose extends OpMode {
-    private Timer t, intakeTimer;
+    private Timer t, intakeTimer, turretTimer;
     private TelemetryManager panelsTelemetry;
     private Shooter shooter;
     private Turret turret;
@@ -70,7 +70,6 @@ public class RedClose extends OpMode {
 
     public void autoPathUpdate() {
         //TODO: Implement Turret logic
-        //TODO: add waits where needed (not necessary for shooting states) -- now doing
         switch (pathState) {
             case RUN_AND_GUN:
                 follower.followPath(RunAndGun);
@@ -213,9 +212,6 @@ public class RedClose extends OpMode {
                 follower.followPath(Park);
                 panelsTelemetry.debug("Auto is done");
                 break;
-
-
-            //TODO
         }
     }
 
@@ -227,13 +223,18 @@ public class RedClose extends OpMode {
         gate = new Gate(hardwareMap);
         transfer = new Transfer(hardwareMap);
         intake = new Intake(hardwareMap);
+
         //Timers
         t = new Timer();
         intakeTimer = new Timer();
+        turretTimer = new Timer();
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose);
+        follower.setHeading(36);
         buildPaths(follower);
+
+        pathState = PathState.RUN_AND_GUN;
 
         panelsTelemetry.debug("INIT FINISHED");
         panelsTelemetry.update(telemetry);
@@ -243,7 +244,7 @@ public class RedClose extends OpMode {
     public void loop() {
         follower.update();
         autoPathUpdate();
-        //Always on shooter -> changeable
+        //Always on shooter -> changeable but not beneficial...
         shooter.mid();
 
         panelsTelemetry.debug("Path State", pathState);
@@ -262,7 +263,7 @@ public class RedClose extends OpMode {
                                 new Pose(95.000, 81.000)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(36), Math.toRadians(0))
                 .build();
 
         FirstPickup = follower.pathBuilder()
@@ -415,7 +416,7 @@ public class RedClose extends OpMode {
         if (t.getElapsedTimeSeconds() < 0.06) {
             gate.open();
             isShootingDone = false;
-        } else if (t.getElapsedTimeSeconds() < 0.4) {
+        } else if (t.getElapsedTimeSeconds() < 0.5) {
             intake.run();
             transfer.run();
             isShootingDone = false;

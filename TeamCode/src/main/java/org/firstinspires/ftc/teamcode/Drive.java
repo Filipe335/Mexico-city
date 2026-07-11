@@ -37,10 +37,10 @@ public class Drive {
         rf= y - x - rx;
         rb= y + x - rx;
         if(slow){
-            lf -= 0.1;
-            lb -= 0.1;
-            rf -= 0.1;
-            rb -= 0.1;
+            lf -= 0.3;
+            lb -= 0.3;
+            rf -= 0.3;
+            rb -= 0.3;
         }
         leftFront.set(pid.calculate(lf));
         leftBack.set(pid.calculate(lb));

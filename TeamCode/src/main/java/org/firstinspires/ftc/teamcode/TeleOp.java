@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.pedropathing.follower.Follower;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "main")
 public class TeleOp extends OpMode {
@@ -11,8 +14,12 @@ public class TeleOp extends OpMode {
     private Intake intake;
     private Transfer transfer;
     private Gate gate;
+    private Limelight limelight;
+    private double pos;
     private Timer t;
     double x, y, rx;
+    double posX, posY;
+    private Follower follower;
     @Override
     public void init() {
         turret = new Turret(hardwareMap);
@@ -21,13 +28,20 @@ public class TeleOp extends OpMode {
         intake = new Intake(hardwareMap);
         gate = new Gate(hardwareMap);
         transfer = new Transfer(hardwareMap);
+        limelight = new Limelight(hardwareMap);
+        t = new Timer();
         transfer.stop();
         shooter.stop();
         intake.stop();
+//        follower = Constants.createFollower(hardwareMap);
+
     }
 
     @Override
     public void loop() {
+//        limelight.see(follower.getHeading());
+//        posX = limelight.getX();
+//        posY = limelight.getY();
         //Drive:
         x = gamepad1.left_stick_x;
         y = gamepad1.left_stick_y;
@@ -41,18 +55,18 @@ public class TeleOp extends OpMode {
             turret.moveRight();
         }
         //Shooter:
-        if(gamepad2.crossWasPressed()){
+        if(gamepad2.cross){
             shooter.override = true;
             shooter.low();
-        }else if(gamepad2.squareWasPressed()){
+        }else if(gamepad2.square){
             shooter.override = true;
             shooter.mid();
-        }else if(gamepad2.triangleWasPressed()){
+        }else if(gamepad2.triangle){
             shooter.override = true;
             shooter.high();
         }else if(gamepad2.circleWasPressed()){
             shooter.override = false;
-            shooter.automatic();
+//            shooter.automatic();
         }else{
             shooter.stop();
         }
@@ -81,9 +95,7 @@ public class TeleOp extends OpMode {
             gate.close();
             transfer.reverse();
         }
-    }
-    @Override
-    public void stop(){
-        turret.counter = 0;
+        telemetry.addData("LimelightXPos: ", posX);
+        telemetry.addData("LimelightYPos: ", posY);
     }
 }
