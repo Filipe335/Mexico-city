@@ -33,18 +33,12 @@ public class Drive {
     }
     public void driveSmooth(double x, double y, double rx){
         lf= y + x + rx;
-        lb= y - x + rx;
         rf= y - x - rx;
+        lb= y - x + rx;
         rb= y + x - rx;
-        if(slow){
-            lf -= 0.3;
-            lb -= 0.3;
-            rf -= 0.3;
-            rb -= 0.3;
-        }
-        leftFront.set(pid.calculate(lf));
-        leftBack.set(pid.calculate(lb));
-        rightFront.set(pid.calculate(rf));
-        rightBack.set(pid.calculate(rb));
+        leftFront.set(lf);
+        leftBack.set(lb);
+        rightFront.set(rf);
+        rightBack.set(rb);
     }
 }

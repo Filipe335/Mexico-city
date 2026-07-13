@@ -7,6 +7,7 @@ import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.motors.MotorEx;
+import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
 import com.seattlesolvers.solverslib.util.InterpLUT;
 
 @Config
@@ -15,11 +16,12 @@ public class Shooter extends SubsystemBase {
     private MotorEx shooter;
     private MotorEx shooter2;
     private static PIDFController pid;
-    private static double P = 0.7;
+    private static double P = 0.07;
     private static double I = 0.00005;
     private static double D = 0.00005;
-    private static double F = 0.8;
+    private static double F = 0.07;
     public boolean override;
+    private ServoEx hood;
 
     public Shooter(HardwareMap hardwareMap){
         shooter = new MotorEx(hardwareMap, "shooter");
@@ -28,9 +30,11 @@ public class Shooter extends SubsystemBase {
         shooter2.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         shooter.setRunMode(Motor.RunMode.RawPower);
         shooter2.setRunMode(Motor.RunMode.RawPower);
-        shooter.setInverted(true);
+        shooter.setInverted(false);
         pid = new PIDFController(P, I, D, F);
         InterpLUT lut = new InterpLUT();
+        hood = new ServoEx(hardwareMap, "hood");
+        hood.setCachingTolerance(0.00005);
 //        lut.add();
 
     }
@@ -40,19 +44,26 @@ public class Shooter extends SubsystemBase {
         }
     }
     public void low(){
-        shooter.set(pid.calculate(shooter2.getVelocity(), 1000));
-        shooter2.set(pid.calculate(shooter2.getVelocity(), 1000));
+        shooter.set(0.7);
+        shooter2.set(0.7);
     }
     public void mid(){
-        shooter.set(pid.calculate(shooter2.getVelocity(), 1300));
-        shooter2.set(pid.calculate(shooter2.getVelocity(), 1300));
+        shooter.set(pid.calculate(ticksToRPM(shooter2.getVelocity()), 4500));
+        shooter2.set(pid.calculate(ticksToRPM(shooter2.getVelocity()), 4500));
     }
     public void high(){
-        shooter.set(pid.calculate(1800));
-        shooter2.set(pid.calculate(1800));
+        shooter.set(pid.calculate(ticksToRPM(shooter2.getVelocity()), 5500));
+        shooter2.set(pid.calculate(ticksToRPM(shooter2.getVelocity()), 5500));
     }
     public void stop(){
         shooter.set(0);
         shooter2.set(0);
     }
+    public int ticksToRPM(double ticks){
+        return (int)ticks * 31/14;
+    }
+    public int getRPM(){
+        return ticksToRPM(shooter2.getVelocity());
+    }
+
 }

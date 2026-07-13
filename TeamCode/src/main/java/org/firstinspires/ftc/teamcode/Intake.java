@@ -14,10 +14,10 @@ public class Intake extends SubsystemBase {
         intake.setInverted(false);
     }
     public void run(){
-        intake.set(0.8);
+        intake.set(1);
     }
     public void reverse(){
-        intake.set(-0.8);
+        intake.set(-1);
     }
     public void stop(){
         intake.set(0);

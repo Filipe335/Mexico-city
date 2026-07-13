@@ -17,6 +17,7 @@ public class Limelight {
     private double x, y;
     private double distance;
     private double METERS_TO_INCH = 1 / 256.4;
+    int id = 0;
 
     public Limelight(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -32,7 +33,7 @@ public class Limelight {
         y = result.getBotpose_MT2().getPosition().y * METERS_TO_INCH;
         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
         for (LLResultTypes.FiducialResult fiducial : fiducials) {
-            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+            id = fiducial.getFiducialId(); // The ID number of the fiducial
 //            double x = detection.getTargetXDegrees(); // Where it is (left-right)
 //            double y = detection.getTargetYDegrees(); // Where it is (up-down)
             distance = fiducial.getRobotPoseTargetSpace().getPosition().y;
@@ -44,6 +45,9 @@ public class Limelight {
     }
     public double getY() {
         return y;
+    }
+    public int getID(){
+        return id;
     }
     public double getDistance() {
         return distance;
