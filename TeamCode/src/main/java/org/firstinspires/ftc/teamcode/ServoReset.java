@@ -31,7 +31,7 @@ public class ServoReset extends OpMode {
     @Override
     public void init() {
         //absolute value of the pid output or input, ////////**preferably input
-        servo = new ServoEx(hardwareMap, "gate");
+        servo = new ServoEx(hardwareMap, "hood");
         servo.set(pos);
         intake = new Intake(hardwareMap);
         turretEncoder = new AbsoluteAnalogEncoder(hardwareMap, "turretEncoder", 3.3, AngleUnit.DEGREES);
@@ -53,10 +53,10 @@ public class ServoReset extends OpMode {
         if (gamepad1.dpadRightWasPressed()) {
             pos -= 0.02;
         }
-        if (gamepad1.dpadLeftWasPressed()) {
+        if (gamepad1.dpadDownWasPressed()) {
             pos -= 0.01;
         }
-        if (gamepad1.dpadRightWasPressed()) {
+        if (gamepad1.dpadUpWasPressed()) {
             pos += 0.01;
         }
         if(gamepad1.dpad_left){

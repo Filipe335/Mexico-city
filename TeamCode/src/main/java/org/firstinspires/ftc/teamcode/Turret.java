@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -34,15 +36,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
  * then fix the table — the code adapts automatically, including the dead
  * zone center.
  */
+@Configurable
+@Config
 public class Turret extends SubsystemBase {
 
     // ---------------- calibration ----------------
     // { robot degrees, unwrapped servo degrees } — sorted by robot degrees!
     private static final double[][] CALIBRATION = {
-            { -45.0,  -30.0 },   // right limit (measured)
+            { -45.0,  -25.0 },   // right limit (measured)
             {  90.0,  177.0 },   // facing exactly forward (measured)
-            { 265.0,  385.0 },   // left limit (measured — robot angle label suspect!)
+            { 265.0,  370.0 },   // left limit (measured — robot angle label suspect!)
     };
+    private static final double TURRET_FORWARD_OFFSET = 90.0;  // from CALIBRATION: robot 90 = forward
 
     public static final double ROBOT_MIN = CALIBRATION[0][0];
     public static final double ROBOT_MAX = CALIBRATION[CALIBRATION.length - 1][0];
@@ -68,6 +73,8 @@ public class Turret extends SubsystemBase {
     public static double D = 0.0001;      // start at 0! add back slowly after testing
     public static double F = 0.01;     // static-friction feedforward: F * signum(error)
     public static double D_FILTER = 0.8; // 0..1, higher = smoother derivative
+
+    public static boolean TEST = false;
 
     // ---------------- alliance / targets ----------------
     public enum Alliance { RED, BLUE }
@@ -95,6 +102,7 @@ public class Turret extends SubsystemBase {
         turretEncoder.setReversed(true);
         turret = new CRServoEx(hardwareMap, "turret", turretEncoder, CRServoEx.RunMode.RawPower);
         turret.setCachingTolerance(0.002);
+        turret.setInverted(false);
 
         // ---- initialize unwrapped position ----
         // The true position is raw-360, raw, or raw+360; pick the candidate in
@@ -158,7 +166,9 @@ public class Turret extends SubsystemBase {
         }
 
         lastPower = power;
-        turret.set(power);
+
+        if(!TEST) turret.set(power);
+        else turret.set(0);
     }
 
     @Override
@@ -178,9 +188,9 @@ public class Turret extends SubsystemBase {
     public void aimAt(Pose fieldTarget, Follower follower) {
         double dx = fieldTarget.getX() - follower.getPose().getX();
         double dy = fieldTarget.getY() - follower.getPose().getY();
-        double fieldAngleDeg = Math.toDegrees(Math.atan2(dy, dx));
+        double fieldAngleDeg = Math.toDegrees(Math.atan(dy/dx));
         double robotHeadingDeg = Math.toDegrees(follower.getHeading());
-        setTargetRobotAngle(fieldAngleDeg - robotHeadingDeg);
+        setTargetRobotAngle(fieldAngleDeg -robotHeadingDeg + TURRET_FORWARD_OFFSET);
     }
 
     /** Desired turret heading in ROBOT frame; dead-zone targets snap to a limit. */

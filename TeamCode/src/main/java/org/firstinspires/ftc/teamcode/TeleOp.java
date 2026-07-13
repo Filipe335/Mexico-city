@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.util.Timer;
@@ -44,9 +46,9 @@ public class TeleOp extends OpMode {
         shooter.stop();
         intake.stop();
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(70, 110));
-        follower.setHeading(Math.toRadians(90));
+        follower.setStartingPose(new Pose(72, 72, Math.toRadians(90)));
         turret.setAlliance(Turret.Alliance.RED);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     @Override
@@ -83,6 +85,8 @@ public class TeleOp extends OpMode {
 //        }else if(gamepad2.circleWasPressed()){
 //            shooter.override = false;
 //            shooter.automatic();
+        }else{
+            shooter.stop();
         }
         if(gamepad2.shareWasPressed()){
             turret.setAlliance(Turret.Alliance.BLUE);
@@ -90,8 +94,8 @@ public class TeleOp extends OpMode {
         if(gamepad2.optionsWasPressed()){
             turret.setAlliance(Turret.Alliance.RED);
         }
-         else {
-            shooter.stop();
+        if(gamepad1.crossWasPressed()){
+            follower.setPose(new Pose(127, 62, 0));
         }
         //Intake:
         if(gamepad1.right_bumper){
@@ -119,7 +123,7 @@ public class TeleOp extends OpMode {
             transfer.reverse();
         }
         turret.run();
-        telemetry.addData("LimelightXPos: ", posX);
+
         telemetry.addData("Unwrapped servo degrees ", turret.getUnwrappedServoDegrees());
         telemetry.addData("targetServoDegrees", turret.getTargetServoDegrees());
         telemetry.addData("ErrorDegrees", turret.getErrorDegrees());
@@ -127,6 +131,8 @@ public class TeleOp extends OpMode {
         telemetry.addData("LimelightYPos: ", posY);
         telemetry.addData("ID: ", limelight.getID());
         telemetry.addData("RPM", shooter.getRPM());
+        telemetry.addData("TargetRPM", shooter.getTarget());
+        telemetry.update();
 
 
     }

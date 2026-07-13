@@ -33,6 +33,8 @@ public class BetterTeleOp extends OpMode {
         turret = new Turret(hardwareMap);
         shooter = new Shooter(hardwareMap);
         limelight = new Limelight(hardwareMap);
+        t = new Timer();
+
     }
 
     @Override
