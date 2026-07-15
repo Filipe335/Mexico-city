@@ -100,17 +100,20 @@ public class TeleOp extends OpMode {
         //Intake:
         if(gamepad1.right_bumper){
             intake.run();
+            transfer.stall();
         }else if(gamepad1.left_bumper){
             intake.reverse();
+            transfer.stall();
         }else{
             intake.stop();
+            transfer.stop();
         }
         if(gamepad1.rightTriggerWasPressed()){
             t.resetTimer();
         }
-        if (gamepad1.right_trigger_pressed && t.getElapsedTimeSeconds() < 0.1) {
+        if (gamepad1.right_trigger_pressed && t.getElapsedTimeSeconds() < 0.06) {
                 gate.open();
-        }else if(gamepad1.right_trigger_pressed && t.getElapsedTimeSeconds() > 0.1){
+        }else if(gamepad1.right_trigger_pressed && t.getElapsedTimeSeconds() > 0.06){
             transfer.run();
             intake.run();
         }
@@ -127,6 +130,8 @@ public class TeleOp extends OpMode {
         telemetry.addData("Unwrapped servo degrees ", turret.getUnwrappedServoDegrees());
         telemetry.addData("targetServoDegrees", turret.getTargetServoDegrees());
         telemetry.addData("ErrorDegrees", turret.getErrorDegrees());
+        telemetry.addData("TargetPhysicalAngle", turret.getTargetPhysicalAngle());
+        telemetry.addData("PhysicalAngle", turret.getCurrentPhysicalAngle());
         telemetry.addData("heading", follower.getHeading());
         telemetry.addData("LimelightYPos: ", posY);
         telemetry.addData("ID: ", limelight.getID());

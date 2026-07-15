@@ -22,4 +22,7 @@ public class Transfer extends SubsystemBase {
     public void stop(){
         transfer.set(0);
     }
+    public void stall(){
+        transfer.set(-0.2);
+    }
 }

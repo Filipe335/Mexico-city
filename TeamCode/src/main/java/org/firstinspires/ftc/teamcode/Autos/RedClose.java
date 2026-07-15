@@ -92,7 +92,6 @@ public class RedClose extends OpMode {
                 follower.followPath(FirstPickup);
                 intake.run();
                 if (follower.atPose(FirstPickup.endPose(), 0.5, 0.5)) {
-                    intake.stop();
                     pathState = PathState.FIRST_SHOOT;
                 }
                 break;
@@ -111,7 +110,6 @@ public class RedClose extends OpMode {
                 follower.followPath(SecondPickup);
                 intake.run();
                 if (follower.atPose(SecondPickup.endPose(), 1, 1)) {
-                    intake.stop();
                     pathState = PathState.SECOND_SHOOT;
                 }
                 break;
@@ -194,7 +192,6 @@ public class RedClose extends OpMode {
                 follower.followPath(Sweep);
                 intake.run();
                 if(follower.atPose(Sweep.endPose(), 0.5, 0.5)){
-                    intake.stop();
                     pathState = PathState.SHOOT_SWEEP;
                 }
                 break;
@@ -416,7 +413,7 @@ public class RedClose extends OpMode {
         if (t.getElapsedTimeSeconds() < 0.06) {
             gate.open();
             isShootingDone = false;
-        } else if (t.getElapsedTimeSeconds() < 0.5) {
+        } else if (t.getElapsedTimeSeconds() < 0.3) {
             intake.run();
             transfer.run();
             isShootingDone = false;
