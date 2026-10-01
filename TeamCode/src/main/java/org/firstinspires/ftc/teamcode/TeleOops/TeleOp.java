@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleOops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -10,6 +10,14 @@ import com.seattlesolvers.solverslib.gamepad.GamepadEx;
 import com.seattlesolvers.solverslib.gamepad.GamepadKeys;
 import com.seattlesolvers.solverslib.gamepad.ToggleButtonReader;
 
+import org.firstinspires.ftc.teamcode.Subsystems.Drive;
+import org.firstinspires.ftc.teamcode.Subsystems.Gate;
+import org.firstinspires.ftc.teamcode.Subsystems.Hood;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.Limelight;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "main")
@@ -21,6 +29,7 @@ public class TeleOp extends OpMode {
     private Transfer transfer;
     private Gate gate;
     private Limelight limelight;
+    private Hood hood;
     private double pos;
     private Timer t;
     double posX, posY;
@@ -41,12 +50,14 @@ public class TeleOp extends OpMode {
         gate = new Gate(hardwareMap);
         transfer = new Transfer(hardwareMap);
         limelight = new Limelight(hardwareMap);
+        hood = new Hood(hardwareMap);
         t = new Timer();
         transfer.stop();
         shooter.stop();
         intake.stop();
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(72, 72, Math.toRadians(90)));
+
+//        follower.setStartingPose(new Pose(72, 72, Math.toRadians(90)));
         turret.setAlliance(Turret.Alliance.RED);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
@@ -59,6 +70,7 @@ public class TeleOp extends OpMode {
         shooterMid.readValue();
         shooterHigh.readValue();
         shooterLow.readValue();
+
 //        limelight.see(follower.getHeading());
 //        posX = limelight.getX();
 //        posY = limelight.getY();
@@ -66,36 +78,72 @@ public class TeleOp extends OpMode {
         double x = gamepad1.left_stick_x;
         double y = -gamepad1.left_stick_y;
         double rx = gamepad1.right_stick_x;
-
+        shooter.setFromDistance(turret.getDistanceFromBasket());
         drive.driveSmooth(x, y, rx);
         //shooter.automatic();
         //Turret:
-        if (gamepad2.dpad_left)       turret.moveLeft();
-        else if (gamepad2.dpad_right) turret.moveRight();
-        else                          turret.aimAtBasket(follower);
-        //Shooter:
-        if(shooterLow.getState()){
-            shooter.low();
-        }else if(shooterMid.getState()){
-//            shooter.override = true;
-            shooter.mid();
-        }else if(shooterHigh.getState()){
-//            shooter.override = true;
-            shooter.high();
-//        }else if(gamepad2.circleWasPressed()){
-//            shooter.override = false;
-//            shooter.automatic();
-        }else{
-            shooter.stop();
+        if(gamepad1.dpadDownWasPressed()){
+        Turret.TEST = !Turret.TEST;
         }
-        if(gamepad2.shareWasPressed()){
+        if(gamepad1.dpad_left){
+            turret.gamepadMoveFreelyLeft();
+        }else if(gamepad1.dpad_right){
+            turret.gamepadMoveFreelyRight();
+        }else{
+            turret.gamepadStop();
+        }
+        turret.aimAtBasket(follower);
+        if(gamepad2.dpad_left){
+            turret.gamepadOffsetLeft();
+        }else if(gamepad2.dpad_right){
+            turret.gamepadOffsetRight();
+        }
+
+        //Shooter:
+//        if(shooterLow.getState()){
+//            shooter.low();
+//        }else if(shooterMid.getState()){
+////            shooter.override = true;
+//            shooter.mid();
+//        }else if(shooterHigh.getState()){
+////            shooter.override = true;
+//            shooter.high();
+////        }else if(gamepad2.circleWasPressed()){
+////            shooter.override = false;
+////            shooter.automatic();
+//        }else{
+//            shooter.stop();
+//        }
+        if(gamepad2.right_trigger_pressed){
+            shooter.gamepadIncreaseRPM();
+        }else if(gamepad2.left_trigger_pressed){
+            shooter.gamepadDecreaseRPM();
+        }else if(gamepad2.squareWasPressed()){
+            shooter.resetGamepadOffset();
+        }
+        if(gamepad2.leftBumperWasPressed()){
             turret.setAlliance(Turret.Alliance.BLUE);
         }
-        if(gamepad2.optionsWasPressed()){
+        if(gamepad2.rightBumperWasPressed()){
             turret.setAlliance(Turret.Alliance.RED);
         }
         if(gamepad1.crossWasPressed()){
-            follower.setPose(new Pose(127, 62, 0));
+            follower.setPose(new Pose(127, 63, 0));
+            turret.resetGamepadOffset();
+        }else if(gamepad1.squareWasPressed()){
+            follower.setPose(new Pose(15, 63, Math.toRadians(180)));
+            turret.resetGamepadOffset();
+            //Blue human
+        }else if(gamepad1.circleWasPressed()){
+            follower.setPose(new Pose(8,8, Math.toRadians(180)));
+            turret.resetGamepadOffset();
+            //Red human
+        }else if(gamepad1.triangleWasPressed()){
+            follower.setPose(new Pose(135,8, Math.toRadians(0)));
+            turret.resetGamepadOffset();
+        }
+        if(gamepad2.dpadDownWasPressed()){
+            turret.resetGamepadOffset();
         }
         //Intake:
         if(gamepad1.right_bumper){
@@ -126,7 +174,9 @@ public class TeleOp extends OpMode {
             transfer.reverse();
         }
         turret.run();
+        hood.run(turret, shooter);
 
+        telemetry.addData("RobotPose", follower.getPose());
         telemetry.addData("Unwrapped servo degrees ", turret.getUnwrappedServoDegrees());
         telemetry.addData("targetServoDegrees", turret.getTargetServoDegrees());
         telemetry.addData("ErrorDegrees", turret.getErrorDegrees());

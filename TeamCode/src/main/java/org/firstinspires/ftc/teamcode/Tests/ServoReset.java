@@ -1,17 +1,16 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Tests;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.seattlesolvers.solverslib.hardware.AbsoluteAnalogEncoder;
 import com.seattlesolvers.solverslib.hardware.motors.CRServoEx;
-import com.seattlesolvers.solverslib.hardware.motors.Motor;
 import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
 
 @Config
 @Configurable
@@ -31,7 +30,7 @@ public class ServoReset extends OpMode {
     @Override
     public void init() {
         //absolute value of the pid output or input, ////////**preferably input
-        servo = new ServoEx(hardwareMap, "hood");
+        servo = new ServoEx(hardwareMap, "gate");
         servo.set(pos);
         intake = new Intake(hardwareMap);
         turretEncoder = new AbsoluteAnalogEncoder(hardwareMap, "turretEncoder", 3.3, AngleUnit.DEGREES);
@@ -40,7 +39,9 @@ public class ServoReset extends OpMode {
         turretEncoder.setReversed(true);
 //        turret.setPIDF(coefficients);
     }//if lastValue was >3.2 and current value < 0.2 counter++
-
+//far most point: 0.72
+    //middle (77, 78) 0.27
+    //down: 0
 
     @Override
     public void loop() {

@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.HelperClasses;
 
 import com.pedropathing.util.Timer;
 
-import org.firstinspires.ftc.teamcode.Gate;
-import org.firstinspires.ftc.teamcode.Intake;
-import org.firstinspires.ftc.teamcode.Shooter;
-import org.firstinspires.ftc.teamcode.Transfer;
-import org.firstinspires.ftc.teamcode.Turret;
+import org.firstinspires.ftc.teamcode.Subsystems.Gate;
+import org.firstinspires.ftc.teamcode.Subsystems.Intake;
+import org.firstinspires.ftc.teamcode.Subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.Subsystems.Transfer;
+import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 
 public class AutoHelperClass {
     private Shooter shooter;

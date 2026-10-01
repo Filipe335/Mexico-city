@@ -21,8 +21,8 @@ import org.firstinspires.ftc.teamcode.Subsystems.Turret;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
-@Autonomous(name = "RedClose", group = "Autonomous")
-public class RedClose extends OpMode {
+@Autonomous(name = "BlueClose", group = "Autonomous")
+public class BlueClose extends OpMode {
     private Timer t, intakeTimer;
     private TelemetryManager panelsTelemetry;
     private Shooter shooter;
@@ -53,7 +53,7 @@ public class RedClose extends OpMode {
     private boolean shootSequenceStarted = false;
 
     public boolean isShootingDone = false;
-    public Pose startingPose = new Pose(127, 124.000, Math.toRadians(33));
+    public Pose startingPose = new Pose(20, 121, Math.toRadians(146));
     public Pose turretPose = new Pose(115.10199386503068, 129.42561349693253, Math.toRadians(33));
 
     public enum PathState {
@@ -324,10 +324,10 @@ public class RedClose extends OpMode {
         transfer = new Transfer(hardwareMap);
         intake = new Intake(hardwareMap);
         hood = new Hood(hardwareMap);
-        turret.setAlliance(Turret.Alliance.RED);
+        turret.setAlliance(Turret.Alliance.BLUE);
 
-        Turret.GAMEPAD_OFFSET = 2;
-        Shooter.GAMEPAD_OFFSET = 20;
+        Turret.GAMEPAD_OFFSET = 3;
+        Shooter.GAMEPAD_OFFSET = 30;
         t = new Timer();
         intakeTimer = new Timer();
         follower = Constants.createFollower(hardwareMap);
@@ -368,77 +368,158 @@ public class RedClose extends OpMode {
 
     public void buildPaths(Follower follower) {
         RunAndGun = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(127.00, 124.000), new Pose(91.000, 83.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(34), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(20, 121),
+                                new Pose(50.000, 83.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(146), Math.toRadians(180))
                 .build();
+
         FirstPickup = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(91.000, 83.000), new Pose(123.000, 82.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(50.000, 83.000),
+                                new Pose(17.000, 83.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
+
         FirstShoot = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(123.000, 82.000), new Pose(91.000, 83.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(17.000, 83.000),
+                                new Pose(50.000, 83.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
+
         SecondPickup = follower.pathBuilder()
-                .addPath(new BezierCurve(new Pose(91.000, 83.000), new Pose(85.000, 60.000), new Pose(126.000, 58)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .addPath(
+                        new BezierCurve(
+                                new Pose(50.000, 83.000),
+                                new Pose(58.000, 59.000),
+                                new Pose(15.000, 59.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
+
         SecondShoot = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(126, 58), new Pose(91.000, 83.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(15.000, 59.000),
+                                new Pose(50.000, 83.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
+
         Gate1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(91.000, 83.000), new Pose(124, 61)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(50.000, 83.000),
+                                new Pose(16.000, 63.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
 
         Tunnel1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(124.000, 61),
-                                new Pose(121.000, 56.000),
-                                new Pose(129, 48.000)
+                                new Pose(16.000, 63.000),
+                                new Pose(19.000, 56.000),
+                                new Pose(12, 52.000)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(140))
                 .build();
+
         ShootTunnel1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(129, 48), new Pose(91.000, 83.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(12, 52.000),
+                                new Pose(50.000, 83.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(140), Math.toRadians(180))
                 .build();
+
         Gate2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(91.000, 83.000), new Pose(124.000, 61)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(50.000, 83.000),
+                                new Pose(16, 63.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
+
         Tunnel2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(124.000, 61),
-                                new Pose(121.000, 56.000),
-                                new Pose(129, 48)
+                                new Pose(16, 63.000),
+                                new Pose(19.000, 56.000),
+                                new Pose(12, 52.000)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(140))
                 .build();
+
         ShootTunnel2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(129, 48), new Pose(91.000, 83.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(12, 52.000),
+                                new Pose(50.000, 83.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(140), Math.toRadians(180))
                 .build();
+
         PreSweep = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(91.000, 83.000), new Pose(121, 54)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
+                .addPath(
+                        new BezierCurve(
+                                new Pose(50.000, 83.000),
+                                new Pose(40.000, 70.000),
+                                new Pose(12.000, 56.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(230))
                 .build();
+
         Sweep = follower.pathBuilder()
-                .addPath(new BezierCurve(new Pose(121.000, 54), new Pose(127.000, 40.000), new Pose(126.000, 33)))
-                .setLinearHeadingInterpolation(Math.toRadians(-45), Math.toRadians(-90))
+                .addPath(
+                        new BezierCurve(
+                                new Pose(12.000, 56.000),
+                                new Pose(19.000, 45.000),
+                                new Pose(5, 10)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(230), Math.toRadians(270))
                 .build();
+
         ShootSweep = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(126, 33), new Pose(91.000, 83.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(5, 10),
+                                new Pose(50.000, 83.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(180))
                 .build();
+
         Park = follower.pathBuilder()
-                .addPath(new BezierLine(new Pose(91.000, 83.000), new Pose(111.000, 79.000)))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .addPath(
+                        new BezierLine(
+                                new Pose(50.000, 83.000),
+                                new Pose(36.000, 83.000)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                 .build();
     }
 
